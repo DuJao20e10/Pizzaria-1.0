@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Pedido #{{ pedido[0] }} - {{ config.nome_sistema }}{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-4xl font-bold text-white mb-2 text-shadow">
+                    <i class="fas fa-edit text-primary-400 mr-3"></i>Editar Pedido #{{ pedido[0] }}
+                </h1>
+                <p class="text-gray-300 text-lg">{{ pedido[1] or 'Cliente Balcão' }}</p>
+            </div>
+            <div class="mt-4 lg:mt-0 flex space-x-3">
+                <a href="{{ url_for('retirada') }}" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Pedido Atual -->
+        <div class="lg:col-span-1">
+            <div class="card rounded-2xl shadow-xl p-6 sticky top-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-receipt text-primary-500 mr-3"></i>
+                    Pedido Atual
+                </h3>
+                
+                <!-- Customer Info -->
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">{{ pedido[1] or 'Cliente Balcão' }}</h4>
+                    {% if pedido[2] %}
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-phone mr-1"></i>{{ pedido[2] }}
+                    </p>
+                    {% endif %}
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-clock mr-1"></i>{{ pedido[4].split()[1][:5] if ' ' in pedido[4] else pedido[4] }}
+                    </p>
+                </div>
+                
+                <!-- Items List -->
+                <div class="space-y-3 mb-6">
+                    {% for item in itens %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-1">
+                            <h5 class="font-medium text-gray-900 text-sm">{{ item[1] }}</h5>
+                            <p class="text-xs text-gray-600">{{ item[2] }} | Qtd: {{ item[3] }}</p>
+                            {% if item[6] %}
+                            <p class="text-xs text-gray-500 italic">{{ item[6] }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-primary-600 text-sm">R$ {{ "%.2f"|format(item[5]) }}</p>
+                            <a href="{{ url_for('remover_item_pedido', item_id=item[0]) }}" 
+                               onclick="return confirm('Remover este item?')"
+                               class="text-red-500 hover:text-red-700 text-xs">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not itens %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-shopping-cart text-gray-400 text-3xl mb-3"></i>
+                        <p class="text-gray-500">Nenhum item no pedido</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Total -->
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold text-gray-900">Total:</span>
+                        <span class="text-2xl font-bold text-primary-600">R$ {{ "%.2f"|format(pedido[2]) }}</span>
+                    </div>
+                    
+                    {% if pedido[5] == 'aberto' and itens %}
+                    <a href="{{ url_for('finalizar_pedido_retirada', pedido_id=pedido[0]) }}" 
+                       onclick="return confirm('Finalizar este pedido?')"
+                       class="btn-primary w-full py-3 px-4 rounded-lg font-medium text-center block">
+                        <i class="fas fa-check mr-2"></i>Finalizar Pedido
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Adicionar Produtos -->
+        <div class="lg:col-span-2">
+            <!-- Category Filter -->
+            <div class="card rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex flex-wrap gap-3">
+                    {% for categoria in categorias %}
+                    <button onclick="filterProducts('{{ categoria[1] }}')" 
+                            class="category-btn px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-gray-200 text-gray-700 hover:bg-primary-500 hover:text-white">
+                        {{ categoria[1] }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for produto in produtos %}
+                <div class="product-card card rounded-2xl shadow-xl overflow-hidden hover-lift transition-all duration-300" 
+                     data-category="{{ produto[3] }}">
+                    
+                    <!-- Product Image -->
+                    <div class="relative h-32 bg-gradient-to-br from-gray-200 to-gray-300">
+                        {% if produto[8] %}
+                        <img src="{{ produto[8] }}" alt="{{ produto[1] }}" 
+                             class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i class="fas fa-image text-gray-400 text-2xl"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Category Badge -->
+                        <div class="absolute top-2 left-2">
+                            <span class="bg-primary-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                {{ produto[3] }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Info -->
+                    <div class="p-4">
+                        <h3 class="font-bold text-gray-900 mb-2">{{ produto[1] }}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ produto[2] }}</p>
+                        
+                        <!-- Add to Cart Form -->
+                        <form method="POST" action="{{ url_for('adicionar_item_retirada', pedido_id=pedido[0]) }}" class="space-y-3">
+                            <input type="hidden" name="produto_id" value="{{ produto[0] }}">
+                            
+                            <!-- Size Selection -->
+                            {% if produto[4] or produto[5] or produto[6] or produto[7] %}
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Tamanho:</label>
+                                <div class="space-y-1">
+                                    {% if produto[4] %}
+                                    <label class="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-gray-50">
+                                        <div class="flex items-center">
+                                            <input type="radio" name="tamanho" value="P" class="mr-2" required>
+                                            <span class="text-xs">P</span>
+                                        </div>
+                                        <span class="text-xs font-bold text-primary-600">R$ {{ "%.2f"|format(produto[4]) }}</span>
+                                    </label>
+                                    {% endif %}
+                                    {% if produto[5] %}
+                                    <label class="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-gray-50">
+                                        <div class="flex items-center">
+                                            <input type="radio" name="tamanho" value="M" class="mr-2" required>
+                                            <span class="text-xs">M</span>
+                                        </div>
+                                        <span class="text-xs font-bold text-primary-600">R$ {{ "%.2f"|format(produto[5]) }}</span>
+                                    </label>
+                                    {% endif %}
+                                    {% if produto[6] %}
+                                    <label class="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-gray-50">
+                                        <div class="flex items-center">
+                                            <input type="radio" name="tamanho" value="G" class="mr-2" required>
+                                            <span class="text-xs">G</span>
+                                        </div>
+                                        <span class="text-xs font-bold text-primary-600">R$ {{ "%.2f"|format(produto[6]) }}</span>
+                                    </label>
+                                    {% endif %}
+                                    {% if produto[7] %}
+                                    <label class="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-gray-50">
+                                        <div class="flex items-center">
+                                            <input type="radio" name="tamanho" value="Família" class="mr-2" required>
+                                            <span class="text-xs">Família</span>
+                                        </div>
+                                        <span class="text-xs font-bold text-primary-600">R$ {{ "%.2f"|format(produto[7]) }}</span>
+                                    </label>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Quantity -->
+                            <div class="flex items-center space-x-2">
+                                <label class="text-xs font-medium text-gray-700">Qtd:</label>
+                                <input type="number" name="quantidade" value="1" min="1" max="10" 
+                                       class="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                            
+                            <!-- Add Button -->
+                            <button type="submit" 
+                                    class="btn-primary w-full py-2 px-3 rounded text-sm font-medium transition-all duration-300">
+                                <i class="fas fa-plus mr-1"></i>Adicionar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterProducts(category) {
+    const products = document.querySelectorAll('.product-card');
+    const buttons = document.querySelectorAll('.category-btn');
+    
+    // Reset button styles
+    buttons.forEach(btn => {
+        btn.classList.remove('bg-primary-500', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+    });
+    
+    // Highlight active button
+    event.target.classList.remove('bg-gray-200', 'text-gray-700');
+    event.target.classList.add('bg-primary-500', 'text-white');
+    
+    // Filter products
+    products.forEach(product => {
+        if (product.dataset.category === category) {
+            product.style.display = 'block';
+        } else {
+            product.style.display = 'none';
+        }
+    });
+}
+
+// Show first category by default
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.querySelector('.category-btn')) {
+        document.querySelector('.category-btn').click();
+    }
+});
+</script>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

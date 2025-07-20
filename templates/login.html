@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Login - {{ config.nome_sistema }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Logo e Título -->
+        <div class="text-center">
+            <div class="mx-auto h-20 w-20 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                <i class="fas fa-pizza-slice text-white text-3xl animate-bounce-soft"></i>
+            </div>
+            <h2 class="mt-6 text-4xl font-bold text-white text-shadow">
+                {{ config.nome_sistema }}
+            </h2>
+            <p class="mt-2 text-lg text-gray-300">
+                Sistema de Gerenciamento de Pizzaria
+            </p>
+        </div>
+
+        <!-- Formulário de Login -->
+        <div class="card rounded-2xl shadow-xl p-8">
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2 text-primary-500"></i>Usuário
+                    </label>
+                    <input id="username" name="username" type="text" required
+                           class="form-input w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-300"
+                           placeholder="Digite seu usuário">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2 text-primary-500"></i>Senha
+                    </label>
+                    <input id="password" name="password" type="password" required
+                           class="form-input w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-300"
+                           placeholder="Digite sua senha">
+                </div>
+
+                <div>
+                    <button type="submit"
+                            class="btn-primary w-full py-3 px-4 rounded-lg text-lg font-semibold transition-all duration-300 hover-lift">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+                    </button>
+                </div>
+            </form>
+
+            <!-- Informações de Login -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h3 class="text-sm font-medium text-gray-700 mb-4">Usuários de Demonstração:</h3>
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-sm font-medium text-gray-900">Administrador</p>
+                        <p class="text-xs text-gray-600">Usuário: <code class="bg-gray-200 px-1 rounded">admin</code> | Senha: <code class="bg-gray-200 px-1 rounded">admin123</code></p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-sm font-medium text-gray-900">Garçom</p>
+                        <p class="text-xs text-gray-600">Usuário: <code class="bg-gray-200 px-1 rounded">garcom</code> | Senha: <code class="bg-gray-200 px-1 rounded">garcom123</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center">
+            <p class="text-sm text-gray-400">
+                Desenvolvido por <strong class="text-primary-400">João Layon</strong>
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+                © 2025 Todos os direitos reservados
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

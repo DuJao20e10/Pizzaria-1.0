@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Pedido Mesa {{ mesa_id }} - {{ config.nome_sistema }}{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-4xl font-bold text-white mb-2 text-shadow">
+                    <i class="fas fa-utensils text-primary-400 mr-3"></i>Pedido - Mesa {{ mesa_id }}
+                </h1>
+                <p class="text-gray-300 text-lg">Adicione itens ao pedido da mesa</p>
+            </div>
+            <div class="mt-4 lg:mt-0 flex space-x-3">
+                <a href="{{ url_for('ver_pedido_mesa', mesa_id=mesa_id) }}" 
+                   class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center">
+                    <i class="fas fa-eye mr-2"></i>Ver Pedido
+                </a>
+                <a href="{{ url_for('mesas') }}" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="card rounded-xl shadow-lg p-6 mb-8">
+        <div class="flex flex-wrap gap-3">
+            {% for categoria in categorias %}
+            <button onclick="filterProducts('{{ categoria[1] }}')" 
+                    class="category-btn px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-gray-200 text-gray-700 hover:bg-primary-500 hover:text-white">
+                {{ categoria[1] }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for produto in produtos %}
+        <div class="product-card card rounded-2xl shadow-xl overflow-hidden hover-lift transition-all duration-300" 
+             data-category="{{ produto[3] }}">
+            
+            <!-- Product Image -->
+            <div class="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
+                {% if produto[8] %}
+                <img src="{{ produto[8] }}" alt="{{ produto[1] }}" 
+                     class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center">
+                    <i class="fas fa-image text-gray-400 text-4xl"></i>
+                </div>
+                {% endif %}
+                
+                <!-- Category Badge -->
+                <div class="absolute top-3 left-3">
+                    <span class="bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                        {{ produto[3] }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Product Info -->
+            <div class="p-6">
+                <h3 class="font-bold text-lg text-gray-900 mb-2">{{ produto[1] }}</h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ produto[2] }}</p>
+                
+                <!-- Add to Cart Form -->
+                <form method="POST" action="{{ url_for('adicionar_item_mesa', mesa_id=mesa_id) }}" class="space-y-4">
+                    <input type="hidden" name="produto_id" value="{{ produto[0] }}">
+                    
+                    <!-- Size Selection -->
+                    {% if produto[4] or produto[5] or produto[6] or produto[7] %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tamanho:</label>
+                        <div class="space-y-2">
+                            {% if produto[4] %}
+                            <label class="flex items-center justify-between p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <input type="radio" name="tamanho" value="P" class="mr-2" required>
+                                    <span class="text-sm font-medium">Pequeno</span>
+                                </div>
+                                <span class="text-sm font-bold text-primary-600">R$ {{ "%.2f"|format(produto[4]) }}</span>
+                            </label>
+                            {% endif %}
+                            {% if produto[5] %}
+                            <label class="flex items-center justify-between p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <input type="radio" name="tamanho" value="M" class="mr-2" required>
+                                    <span class="text-sm font-medium">Médio</span>
+                                </div>
+                                <span class="text-sm font-bold text-primary-600">R$ {{ "%.2f"|format(produto[5]) }}</span>
+                            </label>
+                            {% endif %}
+                            {% if produto[6] %}
+                            <label class="flex items-center justify-between p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <input type="radio" name="tamanho" value="G" class="mr-2" required>
+                                    <span class="text-sm font-medium">Grande</span>
+                                </div>
+                                <span class="text-sm font-bold text-primary-600">R$ {{ "%.2f"|format(produto[6]) }}</span>
+                            </label>
+                            {% endif %}
+                            {% if produto[7] %}
+                            <label class="flex items-center justify-between p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <input type="radio" name="tamanho" value="Família" class="mr-2" required>
+                                    <span class="text-sm font-medium">Família</span>
+                                </div>
+                                <span class="text-sm font-bold text-primary-600">R$ {{ "%.2f"|format(produto[7]) }}</span>
+                            </label>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Quantity -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quantidade:</label>
+                        <input type="number" name="quantidade" value="1" min="1" max="10" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    
+                    <!-- Observations -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Observações:</label>
+                        <textarea name="observacoes" rows="2" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                  placeholder="Ex: sem cebola, bem passada..."></textarea>
+                    </div>
+                    
+                    <!-- Add Button -->
+                    <button type="submit" 
+                            class="btn-primary w-full py-3 px-4 rounded-lg font-medium transition-all duration-300">
+                        <i class="fas fa-plus mr-2"></i>Adicionar ao Pedido
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Empty State -->
+    {% if not produtos %}
+    <div class="card rounded-2xl shadow-xl p-12 text-center">
+        <i class="fas fa-search text-gray-400 text-6xl mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Nenhum produto encontrado</h3>
+        <p class="text-gray-600">Verifique se existem produtos cadastrados no sistema.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterProducts(category) {
+    const products = document.querySelectorAll('.product-card');
+    const buttons = document.querySelectorAll('.category-btn');
+    
+    // Reset button styles
+    buttons.forEach(btn => {
+        btn.classList.remove('bg-primary-500', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+    });
+    
+    // Highlight active button
+    event.target.classList.remove('bg-gray-200', 'text-gray-700');
+    event.target.classList.add('bg-primary-500', 'text-white');
+    
+    // Filter products
+    products.forEach(product => {
+        if (product.dataset.category === category) {
+            product.style.display = 'block';
+        } else {
+            product.style.display = 'none';
+        }
+    });
+}
+
+// Show first category by default
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.querySelector('.category-btn')) {
+        document.querySelector('.category-btn').click();
+    }
+});
+</script>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

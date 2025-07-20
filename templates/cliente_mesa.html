@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa {{ mesa_id }} - {{ config.nome_sistema }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'bounce-soft': 'bounceSoft 1s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounceSoft {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <div class="bg-black bg-opacity-50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-pizza-slice text-primary-400 text-2xl mr-3 animate-bounce-soft"></i>
+                    <div>
+                        <h1 class="text-xl font-bold text-white">{{ config.nome_sistema }}</h1>
+                        <p class="text-sm text-gray-300">Mesa {{ mesa_id }}</p>
+                    </div>
+                </div>
+                <button onclick="toggleSolicitarConta()" 
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">
+                    <i class="fas fa-receipt mr-2"></i>Solicitar Conta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-6">
+        <!-- Welcome Message -->
+        <div class="card rounded-2xl shadow-xl p-6 mb-8 text-center">
+            <i class="fas fa-hand-wave text-primary-500 text-4xl mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Bem-vindo!</h2>
+            <p class="text-gray-600">Você está na <strong>Mesa {{ mesa_id }}</strong>. Confira nosso delicioso cardápio abaixo!</p>
+            {% if config.endereco %}
+            <p class="text-sm text-gray-500 mt-2">{{ config.endereco }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Category Filter -->
+        <div class="card rounded-xl shadow-lg p-4 mb-6">
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button onclick="filterProducts('all')" 
+                        class="category-btn px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-primary-500 text-white">
+                    Todos
+                </button>
+                {% for categoria in categorias %}
+                <button onclick="filterProducts('{{ categoria[1] }}')" 
+                        class="category-btn px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-gray-200 text-gray-700 hover:bg-primary-500 hover:text-white">
+                    {{ categoria[1] }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {% for produto in produtos %}
+            <div class="product-card card rounded-2xl shadow-xl overflow-hidden" 
+                 data-category="{{ produto[3] }}">
+                
+                <!-- Product Image -->
+                <div class="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
+                    {% if produto[8] %}
+                    <img src="{{ produto[8] }}" alt="{{ produto[1] }}" 
+                         class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <i class="fas fa-image text-gray-400 text-4xl"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Category Badge -->
+                    <div class="absolute top-3 left-3">
+                        <span class="bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                            {{ produto[3] }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Product Info -->
+                <div class="p-6">
+                    <h3 class="font-bold text-xl text-gray-900 mb-2">{{ produto[1] }}</h3>
+                    <p class="text-gray-600 mb-4">{{ produto[2] }}</p>
+                    
+                    <!-- Prices -->
+                    <div class="space-y-2">
+                        {% if produto[4] %}
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">Pequeno (P)</span>
+                            <span class="font-bold text-primary-600 text-lg">R$ {{ "%.2f"|format(produto[4]) }}</span>
+                        </div>
+                        {% endif %}
+                        {% if produto[5] %}
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">Médio (M)</span>
+                            <span class="font-bold text-primary-600 text-lg">R$ {{ "%.2f"|format(produto[5]) }}</span>
+                        </div>
+                        {% endif %}
+                        {% if produto[6] %}
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">Grande (G)</span>
+                            <span class="font-bold text-primary-600 text-lg">R$ {{ "%.2f"|format(produto[6]) }}</span>
+                        </div>
+                        {% endif %}
+                        {% if produto[7] %}
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span class="font-medium text-gray-700">Família</span>
+                            <span class="font-bold text-primary-600 text-lg">R$ {{ "%.2f"|format(produto[7]) }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Contact Info -->
+        <div class="card rounded-2xl shadow-xl p-6 text-center">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-phone text-primary-500 mr-2"></i>
+                Precisa de Ajuda?
+            </h3>
+            <p class="text-gray-600 mb-4">Chame um garçom ou entre em contato conosco!</p>
+            {% if config.telefone_whatsapp %}
+            <a href="https://wa.me/{{ config.telefone_whatsapp }}" target="_blank"
+               class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center">
+                <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Solicitar Conta Modal -->
+    <div id="solicitarContaModal" class="fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black bg-opacity-50" onclick="toggleSolicitarConta()"></div>
+            
+            <div class="card rounded-2xl shadow-xl p-6 w-full max-w-md relative z-10">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">Solicitar Conta</h3>
+                    <button onclick="toggleSolicitarConta()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form method="POST" action="{{ url_for('solicitar_conta', mesa_id=mesa_id) }}">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Observações (opcional):
+                        </label>
+                        <textarea name="observacoes" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                  placeholder="Ex: Dividir a conta, forma de pagamento preferida..."></textarea>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="toggleSolicitarConta()"
+                                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="flex-1 btn-primary px-4 py-3 rounded-lg font-medium">
+                            <i class="fas fa-paper-plane mr-2"></i>Solicitar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterProducts(category) {
+            const products = document.querySelectorAll('.product-card');
+            const buttons = document.querySelectorAll('.category-btn');
+            
+            // Reset button styles
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-primary-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            // Highlight active button
+            event.target.classList.remove('bg-gray-200', 'text-gray-700');
+            event.target.classList.add('bg-primary-500', 'text-white');
+            
+            // Filter products
+            products.forEach(product => {
+                if (category === 'all' || product.dataset.category === category) {
+                    product.style.display = 'block';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleSolicitarConta() {
+            const modal = document.getElementById('solicitarContaModal');
+            modal.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro - {{ config.nome_sistema }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-4">
+        <div class="card rounded-2xl shadow-xl p-8 text-center">
+            <div class="mb-6">
+                <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Ops! Algo deu errado</h1>
+                <p class="text-gray-600">{{ erro }}</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-center mb-4">
+                    <i class="fas fa-pizza-slice text-primary-500 text-2xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-900">{{ config.nome_sistema }}</h2>
+                </div>
+                
+                <p class="text-gray-600 text-sm">
+                    Se você chegou aqui através de um QR Code, verifique se escaneou corretamente ou entre em contato com um funcionário.
+                </p>
+                
+                {% if config.telefone_whatsapp %}
+                <a href="https://wa.me/{{ config.telefone_whatsapp }}" target="_blank"
+                   class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center">
+                    <i class="fab fa-whatsapp mr-2"></i>Entrar em Contato
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

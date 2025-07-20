@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Pedido Mesa {{ mesa_id }} - {{ config.nome_sistema }}{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <h1 class="text-4xl font-bold text-white mb-2 text-shadow">
+                    <i class="fas fa-receipt text-primary-400 mr-3"></i>Pedido - Mesa {{ mesa_id }}
+                </h1>
+                <p class="text-gray-300 text-lg">Visualizar itens do pedido</p>
+            </div>
+            <div class="mt-4 lg:mt-0 flex space-x-3">
+                <a href="{{ url_for('pedido_mesa', mesa_id=mesa_id) }}" 
+                   class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Adicionar Itens
+                </a>
+                <a href="{{ url_for('mesas') }}" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Pedido Info -->
+        <div class="card rounded-2xl shadow-xl p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">Mesa {{ mesa_id }}</h3>
+                    <p class="text-gray-600">Pedido iniciado em {{ pedido[2].split()[1][:5] if ' ' in pedido[2] else pedido[2] }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Total do Pedido</p>
+                    <p class="text-3xl font-bold text-primary-600">R$ {{ "%.2f"|format(pedido[1]) }}</p>
+                </div>
+            </div>
+            
+            {% if pedido[3] %}
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-900 mb-2">Observações:</h4>
+                <p class="text-gray-700">{{ pedido[3] }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Items List -->
+        <div class="card rounded-2xl shadow-xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-list mr-2 text-primary-500"></i>
+                    Itens do Pedido ({{ itens|length }})
+                </h3>
+            </div>
+            
+            {% if itens %}
+            <div class="divide-y divide-gray-200">
+                {% for item in itens %}
+                <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900 text-lg">{{ item[1] }}</h4>
+                            <div class="flex items-center space-x-4 mt-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                                    {{ item[2] }}
+                                </span>
+                                <span class="text-sm text-gray-600">Quantidade: {{ item[3] }}</span>
+                                <span class="text-sm text-gray-600">Unitário: R$ {{ "%.2f"|format(item[4]) }}</span>
+                            </div>
+                            {% if item[6] %}
+                            <div class="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                                <p class="text-sm text-yellow-800">
+                                    <i class="fas fa-sticky-note mr-1"></i>
+                                    <strong>Obs:</strong> {{ item[6] }}
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <p class="text-xl font-bold text-primary-600">R$ {{ "%.2f"|format(item[5]) }}</p>
+                            </div>
+                            <a href="{{ url_for('remover_item_pedido', item_id=item[0]) }}" 
+                               onclick="return confirm('Tem certeza que deseja remover este item?')"
+                               class="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Total Footer -->
+            <div class="bg-gray-50 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-semibold text-gray-900">Total do Pedido:</span>
+                    <span class="text-2xl font-bold text-primary-600">R$ {{ "%.2f"|format(pedido[1]) }}</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="p-12 text-center">
+                <i class="fas fa-shopping-cart text-gray-400 text-6xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Nenhum item no pedido</h3>
+                <p class="text-gray-600 mb-6">Adicione itens ao pedido para começar.</p>
+                <a href="{{ url_for('pedido_mesa', mesa_id=mesa_id) }}" 
+                   class="btn-primary px-6 py-3 rounded-lg font-medium inline-flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Adicionar Itens
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Actions -->
+        {% if itens %}
+        <div class="flex justify-center mt-8">
+            <a href="{{ url_for('fechar_mesa', mesa_id=mesa_id) }}" 
+               onclick="return confirm('Tem certeza que deseja fechar esta mesa?')"
+               class="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-lg text-lg font-medium transition-all duration-300 inline-flex items-center">
+                <i class="fas fa-check mr-2"></i>Fechar Mesa
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

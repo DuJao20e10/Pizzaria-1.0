@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.nome_sistema if config else 'PizzaSystem Pro' }}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        secondary: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            200: '#fecaca',
+                            300: '#fca5a5',
+                            400: '#f87171',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-soft': 'bounceSoft 1s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        @keyframes bounceSoft {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-dark {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(249, 115, 22, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            background: white;
+            border-color: #f97316;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+            outline: none;
+        }
+        
+        .status-livre {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .status-ocupada {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .status-solicitacao {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            animation: bounce-soft 2s ease-in-out infinite;
+        }
+        
+        .notification-badge {
+            animation: bounce-soft 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    {% if session.user_id %}
+    <nav class="glass-effect sticky top-0 z-50 border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-pizza-slice text-primary-400 text-2xl mr-3 animate-bounce-soft"></i>
+                        <h1 class="text-white text-xl font-bold text-shadow">{{ config.nome_sistema if config else 'PizzaSystem Pro' }}</h1>
+                    </div>
+                    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:ml-8 md:flex md:space-x-6">
+                        <a href="{{ url_for('dashboard') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                        
+                        {% if session.user_tipo in ['admin', 'garcom'] %}
+                        <a href="{{ url_for('mesas') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+                            <i class="fas fa-table mr-2"></i>Mesas
+                        </a>
+                        
+                        <a href="{{ url_for('solicitacoes') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10 relative">
+                            <i class="fas fa-bell mr-2"></i>Solicitações
+                            <span class="absolute -top-1 -right-1 bg-secondary-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center notification-badge" 
+                                  id="notification-badge" style="display: none;"></span>
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('retirada') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+                            <i class="fas fa-shopping-bag mr-2"></i>Retirada
+                        </a>
+                        
+                        {% if session.user_tipo == 'admin' %}
+                        <a href="{{ url_for('produtos') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+                            <i class="fas fa-pizza-slice mr-2"></i>Produtos
+                        </a>
+                        
+                        <a href="{{ url_for('usuarios') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+                            <i class="fas fa-users mr-2"></i>Usuários
+                        </a>
+                        
+                        <a href="{{ url_for('relatorios') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+                            <i class="fas fa-chart-bar mr-2"></i>Relatórios
+                        </a>
+                        
+                        <a href="{{ url_for('configuracoes') }}" 
+                           class="flex items-center text-gray-200 hover:text-primary-400 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/10">
+                            <i class="fas fa-cog mr-2"></i>Config
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- User Info -->
+                <div class="flex items-center space-x-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm text-gray-300">
+                            <i class="fas fa-user mr-1"></i>{{ session.username }}
+                        </p>
+                        <div class="flex justify-end">
+                            {% if session.user_tipo == 'admin' %}
+                            <span class="bg-secondary-600 text-white px-2 py-1 rounded-full text-xs">Admin</span>
+                            {% elif session.user_tipo == 'garcom' %}
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs">Garçom</span>
+                            {% else %}
+                            <span class="bg-green-600 text-white px-2 py-1 rounded-full text-xs">Atendente</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('logout') }}" 
+                       class="bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span class="hidden sm:inline">Sair</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div class="md:hidden" x-data="{ open: false }">
+            <button @click="open = !open" class="glass-effect text-gray-200 p-4 w-full text-left border-t border-white/10">
+                <i class="fas fa-bars mr-2"></i> Menu
+            </button>
+            <div x-show="open" x-transition class="px-4 pb-4 space-y-2 glass-effect border-t border-white/10">
+                <a href="{{ url_for('dashboard') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3 border-b border-white/10">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                </a>
+                {% if session.user_tipo in ['admin', 'garcom'] %}
+                <a href="{{ url_for('mesas') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3 border-b border-white/10">
+                    <i class="fas fa-table mr-3"></i>Mesas
+                </a>
+                <a href="{{ url_for('solicitacoes') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3 border-b border-white/10">
+                    <i class="fas fa-bell mr-3"></i>Solicitações
+                </a>
+                {% endif %}
+                <a href="{{ url_for('retirada') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3 border-b border-white/10">
+                    <i class="fas fa-shopping-bag mr-3"></i>Retirada
+                </a>
+                {% if session.user_tipo == 'admin' %}
+                <a href="{{ url_for('produtos') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3 border-b border-white/10">
+                    <i class="fas fa-pizza-slice mr-3"></i>Produtos
+                </a>
+                <a href="{{ url_for('usuarios') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3 border-b border-white/10">
+                    <i class="fas fa-users mr-3"></i>Usuários
+                </a>
+                <a href="{{ url_for('relatorios') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3 border-b border-white/10">
+                    <i class="fas fa-chart-bar mr-3"></i>Relatórios
+                </a>
+                <a href="{{ url_for('configuracoes') }}" class="flex items-center text-gray-200 hover:text-primary-400 py-3">
+                    <i class="fas fa-cog mr-3"></i>Configurações
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-20 right-4 z-50 space-y-3 max-w-sm">
+                {% for category, message in messages %}
+                    <div class="animate-slide-up glass-effect rounded-lg p-4 border-l-4 shadow-lg
+                         {% if category == 'success' %}border-green-500 bg-green-500/10
+                         {% elif category == 'error' %}border-red-500 bg-red-500/10
+                         {% elif category == 'warning' %}border-yellow-500 bg-yellow-500/10
+                         {% else %}border-blue-500 bg-blue-500/10{% endif %}">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                {% if category == 'success' %}
+                                <i class="fas fa-check-circle text-green-400 text-lg"></i>
+                                {% elif category == 'error' %}
+                                <i class="fas fa-exclamation-circle text-red-400 text-lg"></i>
+                                {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i>
+                                {% else %}
+                                <i class="fas fa-info-circle text-blue-400 text-lg"></i>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <p class="text-sm font-medium text-white">{{ message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-effect border-t border-white/20 mt-16">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <i class="fas fa-pizza-slice text-primary-400 text-2xl mr-3"></i>
+                    <h3 class="text-xl font-bold text-shadow">{{ config.nome_sistema if config else 'PizzaSystem Pro' }}</h3>
+                </div>
+                <p class="text-gray-300 mb-4">Sistema Completo de Gerenciamento de Pizzaria</p>
+                {% if config.endereco %}
+                <p class="text-gray-400 text-sm mb-4">{{ config.endereco }}</p>
+                {% endif %}
+                <div class="border-t border-white/20 pt-4">
+                    <p class="text-sm text-gray-300">
+                        Desenvolvido com ❤️ por <strong>João Layon</strong>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-2">
+                        © 2025 Todos os direitos reservados
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-hide flash messages
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.animate-slide-up');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateX(100%)';
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+
+        // Check for notifications
+        {% if session.user_tipo in ['admin', 'garcom'] %}
+        function checkNotifications() {
+            fetch('/api/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notification-badge');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error checking notifications:', error));
+        }
+
+        // Check notifications every 30 seconds
+        setInterval(checkNotifications, 30000);
+        checkNotifications(); // Initial check
+        {% endif %}
+    </script>
+</body>
+</html>
